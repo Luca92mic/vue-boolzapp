@@ -1,153 +1,135 @@
-$(document).ready(function() {
+var app = new Vue(
+  {
+      el: '#root',
+      data: {
+          contacts: [
+              {
+                  name: 'Banner',
+                  avatar: 'img/brucebanner.jpg',
+                  visible: true,
+                  messages: [
+                      {
+                          date: '10/01/2020 15:30:55',
+                          text: 'Hai portato a spasso il cane?',
+                          status: 'sent'
+                      },
+                      {
+                          date: '10/01/2020 15:50:00',
+                          text: 'Ricordati di dargli da mangiare',
+                          status: 'sent'
+                      },
+                      {
+                          date: '10/01/2020 16:15:22',
+                          text: 'Tutto fatto!',
+                          status: 'received'
+                      },
+                  ],
+              },
+              {
+                  name: 'Steve',
+                  avatar: 'img/SteveRogers.jpg',
+                  visible: true,
+                  messages: [
+                      {
+                          date: '20/03/2020 16:30:00',
+                          text: 'Ciao come stai?',
+                          status: 'sent'
+                      },
+                      {
+                          date: '20/03/2020 16:30:55',
+                          text: 'Bene grazie! Stasera ci vediamo?',
+                          status: 'received'
+                      },
+                      {
+                          date: '20/03/2020 16:35:00',
+                          text: 'Mi piacerebbe ma devo andare a fare la spesa.',
+                          status: 'sent'
+                      }
+                  ],
+              },
+              {
+                  name: 'Strange',
+                  avatar: 'img/strange.jpg',
+                  visible: true,
+                  messages: [
+                      {
+                          date: '28/03/2020 10:10:40',
+                          text: 'Hai fatto tutto?',
+                          status: 'received'
+                      },
+                      {
+                          date: '28/03/2020 10:20:10',
+                          text: 'Esperimento riuscito!',
+                          status: 'sent'
+                      },
+                      {
+                          date: '28/03/2020 16:15:22',
+                          text: 'Ottimo, ci vediamo dopo..',
+                          status: 'received'
+                      }
+                  ],
+              },
+          ],
+          currentContact: 0,  //index contatto
+          currentMessage: null,   //index messaggio
+          messageText: "",    //campo vuoto messaggio
+          search: "",     //campo vuoto ricerca contatti
+      },
+      methods: {
+          // funzione per impostare l'index del contatto cliccato
+          setIndexContact: function(position) {
+              this.currentContact = position;
+              return this.currentContact;
+          },
+          // funzione che inserisci messaggio scritto nell'array e da la risposta
+          newMessage: function(contact) {
+              let newSentMessage = {
+                  date: dayjs().format('DD/MM/YYYY HH:mm:ss'),
+                  text: this.messageText,
+                  status: 'sent'
+              };
 
-    $('#search').keyup(function() {
-      search();
-    });
-  
-    $('.write input').keyup(function() {
-      var input = $('.write input').val();
-      if (input.length !== 0) {
-        $('.arrow').removeClass('not_display').addClass('display_inline_block');
-        $('.microphone').removeClass('display_inline_block').addClass('not_display');
-      } else {
-        $('.arrow').removeClass('display_inline_block').addClass('not_display');
-        $('.microphone').removeClass('not_display').addClass('display_inline_block');
+              this.filteredContacts[contact].messages.push(newSentMessage);
+
+              this.messageText = "";
+
+              setTimeout(
+                  ()=> {
+                      let newReceivedMessage = {
+                          date: dayjs().format('DD/MM/YYYY HH:mm:ss'),
+                          text: "Ok",
+                          status: 'received'
+                      };
+
+                      this.filteredContacts[contact].messages.push(newReceivedMessage);
+
+                  },1000
+              );
+          },
+          // funzione per impostare l'index del messaggio al mouseenter
+          setIndexMessage: function(position) {
+              this.currentMessage = position;
+              return this.currentMessage;
+          },
+          // funzione per rimuovere l'index del messaggio al mouseleave
+          removeIndexMessage: function() {
+              this.currentMessage = null;
+              return this.currentMessage;
+          },
+          // funzione per eliminare il messaggio
+          deleteMessage: function(position, messagePosition) {
+              this.filteredContacts[position].messages.splice(messagePosition, 1);
+          },
+      },
+      // funzione per filtrare i contatti
+      computed: {
+          filteredContacts() {
+              return this.contacts.filter(
+                  element => {
+                      return element.name.toLocaleLowerCase().includes(this.search.toLowerCase());
+                  }
+              );
+          }
       }
-    });
-  
-    $('#send').click(function() {
-      send();
-    });
-  
-    $('.write input').keydown(function() {
-      if (event.which === 13) {
-        send();
-      }
-    });
-  
-    $('.user').click(function() {
-      changeChat($(this));
-    });
-  
-    $(document).on('click', '.bubble i', function() {
-        toggleOption($(this));
-    });
-  
-    $(document).on('click', '.delete', function() {
-        deleteBubble($(this));
-    });
-  
-  });
-  
-  
-  function search() {
-    var search = $('#search').val().toLowerCase();
-    $('.user').each(function() {
-      var user = $(this).find('h2').text().toLowerCase();
-      if (user.includes(search)) {
-        $(this).show();
-      } else {
-        $(this).hide();
-      }
-    });
   }
-  
-  function send() {
-    var text = $('.write input').val();
-    var chat = $('.chat_user.display_flex');
-    var bubble = $('.template .bubble').clone();
-    var contact = $('.user.select');
-    var info = $('.info_user.display_flex');
-    var date = new Date;
-    var time = addZero(date.getHours()) + ':' + addZero(date.getMinutes());
-    if (text !== '') {
-      bubble.addClass('send');
-      bubble.children('p').text(text);
-      bubble.children('span').text(time);
-      chat.append(bubble);
-      contact.prependTo('.contact ul');
-      scrollBottom();
-      if (text.length > 14) {
-        contact.find('h3').text(text.substring(0, 14) + ' [...]');
-      } else {
-        contact.find('h3').text(text);
-      }
-      contact.children('span').text(time);
-      info.find('span').text(time);
-      $('.write input').val('');
-      setTimeout(receive, 3000);
-    }
-  }
-  
-  function receive() {
-    var text = ['Si certo.', 'Ci vediamo dopo', 'Sono d\'accordo con te', 'Ciao, a dopo!', 'Come stai?', 'Fantastico!!', 'Andiamo al bar?', 'Purtroppo oggi non posso'];
-    var textIndex = text[getRandomIntInclusive(0, text.length - 1)];
-    var chat = $('.chat_user.display_flex');
-    var bubble = $('.template .bubble').clone();
-    var contact = $('.user.select');
-    var date = new Date;
-    var time = addZero(date.getHours()) + ':' + addZero(date.getMinutes());
-    bubble.addClass('receive');
-    bubble.children('p').text(textIndex);
-    bubble.children('span').text(time);
-    chat.append(bubble);
-    scrollBottom();
-    if (textIndex.length > 14) {
-      contact.find('h3').text(textIndex.substring(0, 14) + ' [...]');
-    } else {
-      contact.find('h3').text(textIndex);
-    }
-  }
-  
-  function addZero(number) {
-    if (number < 10) {
-      number = '0' + number;
-    }
-    return number;
-  }
-  
-  function scrollBottom() {
-      var chatHeight = $('.chat_user.display_flex').height();
-      $('.chat').scrollTop(chatHeight);
-  }
-  
-  function changeChat(userSelect) {
-    var contactSelect = $('.user.select');
-    var dataElement = userSelect.attr('data-element');
-    var info = $(".info_user[data-element='" + dataElement + "']");
-    var infoSelect = $('.info_user.display_flex');
-    var chat = $(".chat_user[data-element='" + dataElement + "']");
-    var chatSelect = $('.chat_user.display_flex');
-    if (!userSelect.hasClass('select')) {
-      userSelect.removeClass('not_select').addClass('select');
-      contactSelect.removeClass('select').addClass('not_select');
-      info.removeClass('not_display').addClass('display_flex');
-      infoSelect.removeClass('display_flex').addClass('not_display');
-      chat.removeClass('not_display').addClass('display_flex');
-      chatSelect.removeClass('display_flex').addClass('not_display');
-    }
-  }
-  
-  function toggleOption(userSelect) {
-    var optionTemplate = $('.template .option').clone();
-    var optionBubble = $('.bubble .option');
-    optionBubble.remove();
-    if (!userSelect.siblings().hasClass('option')) {
-      userSelect.parent().append(optionTemplate);
-      console.log('if');
-    } else {
-      optionBubble.remove();
-      console.log('else');
-    }
-  }
-  
-  function deleteBubble(userSelect) {
-    var message = userSelect.closest('.bubble');
-    message.remove();
-  }
-  
-  function getRandomIntInclusive(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+);

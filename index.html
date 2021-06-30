@@ -2,168 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" integrity="sha256-46qynGAkLSFpVbEBog43gvNhfrOj+BmwXdxFgVK/Kvc=" crossorigin="anonymous" />
+  <!-- link fontawesome -->    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- link css -->
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <!-- link vue -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <title>Vue Boolzapp</title>
 </head>
 <body>
-  <main>
-    <div class="background_bollzap">
-      <div class="bollzap clearfix">
-        <div class="ui_left left">
-          <div class="top_bar">
-            <img src="img/stark.jpg" alt="foto profilo utente">
-            <i class="fas fa-circle-notch"></i>
-            <i class="fas fa-comment-alt"></i>
-            <i class="fas fa-ellipsis-v"></i>
-          </div>
-          <div class="notification">
-            <i class="fas fa-bell-slash"></i>
-            <div>
-              <h2>Ricevi le notifiche dei nuovi messaggi</h2>
-              <h3>Attiva le notifiche desktop</h3>
+
+  <div id="root">
+
+    <!-- LEFT SIDE -->
+    <div id="l-side">
+
+        <!-- nav utente -->
+        <div class="user-nav">
+            <div class="l-user-icons">
+                <img src="img/stark.jpg" alt="Avatar Utente">
+                <span class="user-name">Tony</span>
             </div>
-          </div>
-          <div class="search">
-            <div>
-              <input id="search" type="search" placeholder="Cerca o inizia una nuova chat">
+            <div class="r-user-icons">
+                <i class="fas fa-circle-notch"></i>
+                <i class="fas fa-comment-alt"></i>
+                <i class="fas fa-ellipsis-v"></i>
             </div>
-          </div>
-          <div class="contact">
-            <ul>
-              <li>
-                <div id="bruce" class="user select" data-element="0">
-                  <img src="img/brucebanner.jpg" alt="Bruce Banner">
-                  <div>
-                    <h2>Bruce</h2>
-                    <h3>Ciao</h3>
-                  </div>
-                  <span>09:40</span>
-                </div>
-              </li>
-              <li>
-                <div id="steve" class="user not_select" data-element="1">
-                  <img src="img/SteveRogers.jpg" alt="Steve Rogers">
-                  <div>
-                    <h2>Steve</h2>
-                    <h3>Ci vediamo al bar!!</h3>
-                  </div>
-                  <span>19:34</span>
-                </div>
-              </li>
-              <li>
-                <div id="strange" class="user not_select" data-element="2">
-                  <img src="img/strange.jpg" alt="Steven Strange">
-                  <div>
-                    <h2>Steven</h2>
-                    <h3>No problem.</h3>
-                  </div>
-                  <span>11:23</span>
-                </div>
-              </li>
-              <li>
-            </ul>
-          </div>
         </div>
-        <div class="ui_right left">
-          <div class="top_bar">
-            <div id="info_bruce" class="info_user display_flex" data-element="0">
-              <img src="img/brucebanner.jpg" alt="Bruce Banner">
-              <div>
-                <h2>Bruce</h2>
-                <h3>Ultimo accesso alle <span>12:10</span></h3>
-              </div>
+        <!-- /nav utente -->
+
+        <!-- notifiche -->
+        <div class="notifications">
+            <div class="bell-background">
+                <i class="fas fa-bell-slash"></i>
             </div>
-            <div id="info_steve" class="info_user not_display" data-element="1">
-              <img src="img/SteveRogers.jpg" alt="Steve Rogers">
-              <div>
-                <h2>Steve</h2>
-                <h3>Ultimo accesso alle <span>16:30</span></h3>
-              </div>
+            <div class="notifications-texts">
+                <div class="strong">Ricevi notifiche di nuovi messaggi</div>
+                <a href="#">Attiva le notifiche desktop</a>
+            </div>           
+        </div>
+        <!-- /notifiche -->
+
+        <!-- ricerca contatti -->
+        <div class="chat-search">
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
             </div>
-            <div id="info_steven" class="info_user not_display" data-element="2">
-              <img src="img/strange.jpg" alt="Steven Strange">
-              <div>
-                <h2>Steven</h2>
-                <h3>Ultimo accesso alle <span>08:10</span></h3>
-              </div>
+            <input type="text" placeholder="Cerca o inizia una nuova chat" v-model="search" @keydown.enter="filteredContacts()">
+        </div>
+        <!-- /ricerca contatti -->
+
+        <!-- lista contatti -->
+        <div class="contact-list">
+            <div v-for="(contact, index) in filteredContacts" class="contact" 
+            :class="(index == currentContact ? 'contact-active' : null)" 
+            @click="setIndexContact(index)">
+                <div class="l-contact">
+                    <img :src="filteredContacts[index].avatar" alt="Avatar Contatto">
+                    <div class="info">
+                        <div class="contact-name">{{contact.name}}</div>
+                        <div v-if="contact.messages.length > 0" class="last-message">{{contact.messages.slice(-1)[0].text}}</div>
+                    </div>
+                </div>
+                <div class="r-contact">
+                    <div v-if="contact.messages.length > 0" class="message-time">{{contact.messages.slice(-1)[0].date}}</div>
+                </div>
             </div>
-            <i class="fas fa-search"></i>
-            <i class="fas fa-paperclip"></i>
-            <i class="fas fa-ellipsis-v"></i>
-          </div>
-          <div class="chat">
-              <div id="chat_bruce" class="chat_user display_flex" data-element="0">
-                <div class="bubble send">
-                  <p>Ehi Bruce, come stai?</p>
-                  <span class="right">09:30</span>
-                  <i class="fas fa-chevron-down"></i>
+        </div>
+        <!-- /lista contatti -->
+
+    </div>
+    <!-- /LEFT SIDE -->
+
+    <!-- RIGHT SIDE -->
+    <div id="r-side">
+
+        <!-- nav contatto -->
+        <div class="contact-nav">
+            <div class="l-contact-icons">
+                <img :src="filteredContacts[currentContact].avatar" alt="Avatar Utente">
+                <div class="contact-info">
+                    <div class="contact-name">{{filteredContacts[currentContact].name}}</div>
+                    <div  v-if="filteredContacts[currentContact].messages.length > 0"  class="last-access">Ultimo accesso oggi alle ore {{filteredContacts[currentContact].messages.slice(-1)[0].date}}</div>
                 </div>
-                <div class="bubble receive">
-                  <p>Tutto bene Tony, tu? Ci vediamo più tardi in laboratorio??</p>
-                  <span class="right">09:34</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="bubble send">
-                  <p>Certo! Ci vediamo dopo!</p>
-                  <span class="right">09:35</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="bubble receive">
-                  <p>Yeah, devo farti vedere la mia ultima scoperta!!!</p>
-                  <span class="right">09:40</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-              </div>
-              <div id="chat_steve" class="chat_user not_display" data-element="1">
-                <div class="bubble send">
-                  <p>Ehi Steve, bella partita ieri, vero?</p>
-                  <span class="right">18:20</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="bubble receive">
-                  <p>Ciao Tony, si ma la prossima volta vincerò io!</p>
-                  <span class="right">19:34</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-              </div>
-              <div id="chat_steven" class="chat_user not_display" data-element="2">
-                <div class="bubble send">
-                  <p>Ciao Steven, ci vediamo stasera al bar?</p>
-                  <span class="right">11:00</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="bubble receive">
-                  <p>Ehi Tony, certamente, solito orario!</p>
-                  <span class="right">11:23</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-              </div>
             </div>
-          <div class="write">
+            <div class="r-contact-icons">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-paperclip"></i>
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
+        </div>
+        <!-- /nav contatto -->
+
+        <!-- area messaggi -->
+        <div class="message-area">
+            <div v-for="(message, index) in filteredContacts[currentContact].messages" class="message" :class="(filteredContacts[currentContact].messages[index].status == 'sent') ? 'message-sent' : 'message-received'" @mouseover="setIndexMessage(index)" @mouseleave="removeIndexMessage()">
+                {{filteredContacts[currentContact].messages[index].text}}
+                <span class="message-date">{{filteredContacts[currentContact].messages[index].date}}</span>
+                <div class="dropdown" :class="(index == currentMessage ? 'dropdown-active' : null)">
+                    <!-- <span @click="deleteMessage(currentContact, currentMessage)">Delete message</span> -->
+                    <i class="fas fa-trash" @click="deleteMessage(currentContact, currentMessage)"></i>
+                </div>
+            </div>
+        </div>
+        <!-- /area messaggi -->
+
+        <!-- controlli nuovo messaggio -->
+        <div class="text-controls">
             <i class="far fa-smile"></i>
-            <input type="text" name="chat" placeholder="Scrivi un messaggio">
-            <i id="send" class="fas fa-arrow-alt-circle-right arrow not_display"></i>
-            <i class="fas fa-microphone microphone display_inline_block"></i>
-          </div>
+            <input type="text" placeholder="Scrivi un messaggio" v-model="messageText" @keydown.enter="newMessage(currentContact)">
+            <i class="fas fa-microphone"></i>
         </div>
-      </div>
+        <!-- /controlli nuovo messaggio -->
+
     </div>
-  </main>
-  <div class="template">
-    <div class="bubble">
-      <p></p>
-      <span class="right">XX:XX</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
-    <div class="option">
-      <h2>Info Messaggio</h2>
-      <h2 class="delete">Cancella messaggio</h2>
-    </div>
-  </div>
-  <script src="js/script.js" charset="utf-8"></script>
+    <!-- /RIGHT SIDE -->
+
+</div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.5/dayjs.min.js" integrity="sha512-n6mJ6AqoohFfbgx3x7N162B/zRNs5x8uvsStlHC+LCvqwKW7oiucE07Ehatg62ybx6Vo1ctaZwm/4sSRUTSIQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
