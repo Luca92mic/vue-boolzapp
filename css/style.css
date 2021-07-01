@@ -48,6 +48,7 @@ body {
 #l-side .user-nav .l-user-icons img {
   height: 100%;
   margin-right: 10px;
+  border-radius: 50%;
 }
 
 #l-side .user-nav .l-user-icons .user-name {
@@ -58,6 +59,7 @@ body {
 #l-side .user-nav .r-user-icons  {
   font-size: 20px;
   color: #b1b1b1;
+  
 }
 
 #l-side .user-nav .r-user-icons i {
@@ -149,6 +151,7 @@ body {
 #l-side .contact-list .contact .l-contact img {
   height: 100%;
   margin-right: 20px;
+  border-radius: 50%;
 }
 
 #l-side .contact-list .contact .l-contact .contact-name {
@@ -200,6 +203,7 @@ body {
 #r-side .l-contact-icons img {
   height: 100%;
   margin-right: 10px;
+  border-radius: 50%;
 }
 
 #r-side .l-contact-icons .contact-name {
